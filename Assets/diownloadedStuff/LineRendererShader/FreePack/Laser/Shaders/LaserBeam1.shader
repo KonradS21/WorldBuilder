@@ -10,7 +10,6 @@ Shader "Unlit/LaserBeam1"
         _NoiseAmount("Noise Amount",float)=0
         _DissolveAmount("Dissolve Amount",float) =0
         _Emission("Emission",float)=1
-
     }
     SubShader
     {
@@ -19,14 +18,11 @@ Shader "Unlit/LaserBeam1"
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
-
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
 
@@ -35,16 +31,13 @@ Shader "Unlit/LaserBeam1"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float4 color : COLOR;
-
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 fixed4 color : COLOR;
-
             };
 
             sampler2D _MainTex;
@@ -57,8 +50,6 @@ Shader "Unlit/LaserBeam1"
             float _NoiseAmount;
             float _Threshold;
             float _Emission;
-
-
             
             // simple noise
             inline float unity_noise_randomValue (float2 uv)
@@ -124,14 +115,11 @@ Shader "Unlit/LaserBeam1"
                 Out = pow(A, B);
             }
 
-
-
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
                 o.color = v.color * _Color;
                 return o;
             }
@@ -152,7 +140,6 @@ Shader "Unlit/LaserBeam1"
                 float4 outLerp4;
                 outLerp4=lerp(col1.xyzw, noiseAfterPower.xxxx*col1.a, _DissolveAmount);
                 fixed4 colResult=outLerp4*i.color*_Color*_ColorEmission;
-                UNITY_APPLY_FOG(i.fogCoord, col);
                 return colResult*_Emission;
             }
             ENDCG
